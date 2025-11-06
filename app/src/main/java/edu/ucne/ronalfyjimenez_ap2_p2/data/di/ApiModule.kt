@@ -7,6 +7,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import edu.ucne.ronalfyjimenez_ap2_p2.data.remote.GastoApi
+import edu.ucne.ronalfyjimenez_ap2_p2.data.remote.RemoteDataSource
+import edu.ucne.ronalfyjimenez_ap2_p2.data.repository.GastoRepositoryImpl
+import edu.ucne.ronalfyjimenez_ap2_p2.domain.repository.GastoRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -17,7 +21,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
-    private const val BASE_URL = "https://linkdeapiaqui.example.com"
+    private const val BASE_URL = "https://gestionhuacalesapi.azurewebsites.net/"
 
     @Provides
     @Singleton
@@ -57,4 +61,26 @@ object ApiModule {
             .client(okHttpClient)
             .build()
     }
+
+    @Provides
+    @Singleton
+    fun providesGastoApi(retrofit: Retrofit): GastoApi {
+        return retrofit.create(GastoApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providesRemoteDataSource(api: GastoApi): RemoteDataSource {
+        return RemoteDataSource(api)
+    }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+    @Binds
+    @Singleton
+    abstract fun bindGastoRepository(
+        gastoRepositoryImpl: GastoRepositoryImpl
+    ): GastoRepository
 }
